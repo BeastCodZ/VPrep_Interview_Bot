@@ -1,7 +1,7 @@
 "use client"; // Enables client-side functionality like state and hooks
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+// import { useRouter } from "next/navigation";
 import { GoogleGenerativeAI } from "@google/generative-ai"; // Import the Google Generative AI
 
 const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || "";
@@ -16,9 +16,16 @@ export default function QuestionPage() {
   const [message, setMessage] = useState("");
   const [transcript, setTranscript] = useState(""); // Store the transcript for later use
   const [analysis, setAnalysis] = useState(""); // Store the analysis result
-  const router = useRouter();
+  const [question, setQuestion] = useState(""); // Store the question from URL
+  // const router = useRouter();
 
-  const question = new URLSearchParams(window.location.search).get("text");
+  // Use effect to safely access window
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const query = new URLSearchParams(window.location.search).get("text");
+      setQuestion(query || "");
+    }
+  }, []);
 
   const handleSubmit = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
@@ -60,7 +67,7 @@ export default function QuestionPage() {
     }
 
     // Create the prompt using the transcript and question
-    const prompt = ` Assume that you are an experienced Campus Recruiter with over 20 years of experience in hiring fresher candidates in Technical and Non Technical Domain. Here you would be given a transcript or response of a candidate to a question asked , and you have to give the candidate a detailed response on how well the candidate answered , how can he improve , what will be the ideal answer of the question by Analyzing the following transcript based on the question: "${question}" , the Transcript is: "${transcript}". Give a well formated report based on the instructions that was provided earlier`;
+    const prompt = `Assume that you are an experienced Campus Recruiter with over 20 years of experience in hiring fresher candidates in Technical and Non-Technical Domain. Analyze the following transcript based on the question: "${question}", the Transcript is: "${transcript}". Provide a well-formatted report on how well the candidate answered, how they can improve, and what the ideal answer would be.`;
 
     try {
       const result = await model.generateContent(prompt); // Call the model with the prompt
