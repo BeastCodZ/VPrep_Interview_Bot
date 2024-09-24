@@ -1,7 +1,7 @@
 "use client"; // Enables client-side functionality like state and hooks
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import { GoogleGenerativeAI } from "@google/generative-ai"; // Import the Google Generative AI
 
 const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || "";
@@ -16,7 +16,7 @@ export default function QuestionPage() {
   const [message, setMessage] = useState("");
   const [transcript, setTranscript] = useState(""); // Store the transcript for later use
   const [analysis, setAnalysis] = useState(""); // Store the analysis result
-  const router = useRouter();
+   // const router = useRouter();
 
   const question = new URLSearchParams(window.location.search).get("text");
 
