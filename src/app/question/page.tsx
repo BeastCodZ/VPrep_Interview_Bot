@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { GoogleGenerativeAI } from "@google/generative-ai"; // Import the Google Generative AI
+import ReactMarkdown from "react-markdown"; // Import react-markdown
 
 const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || "";
 if (!apiKey) {
@@ -20,7 +21,9 @@ export default function QuestionPage() {
 
   const question = new URLSearchParams(window.location.search).get("text");
 
-  const handleSubmit = async (e: { preventDefault: () => void; }) => {
+  const handleSubmit = async (
+    e: React.FormEvent<HTMLFormElement>
+  ) => {
     e.preventDefault();
 
     if (!githubLink) {
@@ -32,24 +35,29 @@ export default function QuestionPage() {
     const modifiedLink = githubLink.replace("/blob/", "/raw/");
     console.log("Modified GitHub link:", modifiedLink); // Debugging
 
-    // Call backend to process modified GitHub link and get transcript
-    const response = await fetch("/api/transcribe", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ githubLink: modifiedLink }), // Send modified link
-    });
+    try {
+      // Call backend to process modified GitHub link and get transcript
+      const response = await fetch("/api/transcribe", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ githubLink: modifiedLink }), // Send modified link
+      });
 
-    const data = await response.json();
-    if (response.ok) {
-      setTranscript(data.transcript); // Store the transcript for analysis later
-      setMessage("Audio recording submitted successfully!");
-    } else {
-      setMessage("Error transcribing audio.");
+      const data = await response.json();
+      if (response.ok) {
+        setTranscript(data.transcript); // Store the transcript for analysis later
+        setMessage("Audio recording submitted successfully!");
+      } else {
+        setMessage("Error transcribing audio.");
+      }
+
+      setGithubLink("");
+    } catch (error) {
+      console.error("Error during transcription:", error);
+      setMessage("An unexpected error occurred during transcription.");
     }
-
-    setGithubLink("");
   };
 
   // Handle analyze button click
@@ -60,11 +68,24 @@ export default function QuestionPage() {
     }
 
     // Create the prompt using the transcript and question
-    const prompt = ` Assume that you are an experienced Campus Recruiter with over 20 years of experience in hiring fresher candidates in Technical and Non Technical Domain. Here you would be given a transcript or response of a candidate to a question asked , and you have to give the candidate a detailed response on how well the candidate answered , how can he improve , what will be the ideal answer of the question by Analyzing the following transcript based on the question: "${question}" , the Transcript is: "${transcript}". Give a well formated report based on the instructions that was provided earlier`;
+    const prompt = `
+      Assume that you are an experienced Campus Recruiter with over 20 years of experience in hiring fresher candidates in Technical and Non-Technical Domains.
+      You will be given a transcript or response of a candidate to a question asked.
+      Provide a detailed report on:
+      1. How well the candidate answered the question.
+      2. Areas for improvement.
+      3. The ideal answer to the question.
+      
+      Analyze the following transcript based on the question: "${question}"
+      Transcript: "${transcript}"
+      
+      Please format your response using clear section headings for each of the above points.
+    `;
 
     try {
       const result = await model.generateContent(prompt); // Call the model with the prompt
-      setAnalysis(result.response.text()); // Store the analysis result
+      const responseText = result.response.text(); // Assuming this returns the raw text
+      setAnalysis(responseText); // Store the analysis result
       setMessage("Analysis completed successfully!");
     } catch (error) {
       console.error("Error analyzing transcript:", error);
@@ -95,14 +116,22 @@ export default function QuestionPage() {
 
       {/* Show the "Analyze" button only if transcript is available */}
       {transcript && (
-        <button onClick={handleAnalyze}>Analyze Transcript</button>
+        <button onClick={handleAnalyze} className="analyze-button">
+          Analyze Transcript
+        </button>
       )}
 
       {/* Show analysis result after analyzing */}
       {analysis && (
-        <div>
+        <div className="analysis-result">
           <h2>Analysis Result:</h2>
-          <p>{analysis}</p>
+          {/* Split the analysis into sections based on headings */}
+          {analysis
+            .split(/^#\s.+$/gm) // Split on headings (e.g., # Section)
+            .filter((section) => section.trim() !== "")
+            .map((section, index) => (
+              <ReactMarkdown key={index}>{section}</ReactMarkdown>
+            ))}
         </div>
       )}
 
@@ -152,10 +181,42 @@ export default function QuestionPage() {
           border: none;
           border-radius: 4px;
           cursor: pointer;
+          margin-top: 10px;
         }
 
         button:hover {
           background-color: #005bb5;
+        }
+
+        .analyze-button {
+          background-color: #28a745;
+        }
+
+        .analyze-button:hover {
+          background-color: #1e7e34;
+        }
+
+        .analysis-result {
+          text-align: left;
+          margin-top: 30px;
+        }
+
+        .analysis-result h2 {
+          font-size: 1.5rem;
+          margin-bottom: 20px;
+        }
+
+        .analysis-result p {
+          margin-bottom: 10px;
+        }
+
+        .analysis-result ul {
+          list-style-type: disc;
+          margin-left: 20px;
+        }
+
+        .analysis-result li {
+          margin-bottom: 5px;
         }
 
         p {
