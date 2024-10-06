@@ -1,7 +1,7 @@
 "use client"; // Enables client-side functionality like state and hooks
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+// import { useRouter } from "next/navigation";
 import { GoogleGenerativeAI } from "@google/generative-ai"; // Import the Google Generative AI
 import ReactMarkdown from "react-markdown"; // Import react-markdown
 
@@ -17,9 +17,16 @@ export default function QuestionPage() {
   const [message, setMessage] = useState("");
   const [transcript, setTranscript] = useState(""); // Store the transcript for later use
   const [analysis, setAnalysis] = useState(""); // Store the analysis result
-  const router = useRouter();
+  const [question, setQuestion] = useState(""); // Store the question from URL
+  // const router = useRouter();
 
-  const question = new URLSearchParams(window.location.search).get("text");
+  // Use effect to safely access window
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const query = new URLSearchParams(window.location.search).get("text");
+      setQuestion(query || "");
+    }
+  }, []);
 
   const handleSubmit = async (
     e: React.FormEvent<HTMLFormElement>
