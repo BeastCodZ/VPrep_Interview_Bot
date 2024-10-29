@@ -1,7 +1,6 @@
 "use client"; // Enables client-side functionality like state and hooks
 
 import { useState, useEffect } from "react";
-// import { useRouter } from "next/navigation";
 import { GoogleGenerativeAI } from "@google/generative-ai"; // Import the Google Generative AI
 import ReactMarkdown from "react-markdown"; // Import react-markdown
 
@@ -15,12 +14,10 @@ const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 export default function QuestionPage() {
   const [githubLink, setGithubLink] = useState("");
   const [message, setMessage] = useState("");
-  const [transcript, setTranscript] = useState(""); // Store the transcript for later use
-  const [analysis, setAnalysis] = useState(""); // Store the analysis result
-  const [question, setQuestion] = useState(""); // Store the question from URL
-  // const router = useRouter();
+  const [transcript, setTranscript] = useState("");
+  const [analysis, setAnalysis] = useState("");
+  const [question, setQuestion] = useState("");
 
-  // Use effect to safely access window
   useEffect(() => {
     if (typeof window !== "undefined") {
       const query = new URLSearchParams(window.location.search).get("text");
@@ -28,38 +25,30 @@ export default function QuestionPage() {
     }
   }, []);
 
-  const handleSubmit = async (
-    e: React.FormEvent<HTMLFormElement>
-  ) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     if (!githubLink) {
       setMessage("Please provide a valid GitHub link.");
       return;
     }
 
-    // Modify the GitHub link to use the raw format
     const modifiedLink = githubLink.replace("/blob/", "/raw/");
-    console.log("Modified GitHub link:", modifiedLink); // Debugging
-
     try {
-      // Call backend to process modified GitHub link and get transcript
       const response = await fetch("/api/transcribe", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ githubLink: modifiedLink }), // Send modified link
+        body: JSON.stringify({ githubLink: modifiedLink }),
       });
 
       const data = await response.json();
       if (response.ok) {
-        setTranscript(data.transcript); // Store the transcript for analysis later
+        setTranscript(data.transcript);
         setMessage("Audio recording submitted successfully!");
       } else {
         setMessage("Error transcribing audio.");
       }
-
       setGithubLink("");
     } catch (error) {
       console.error("Error during transcription:", error);
@@ -67,14 +56,12 @@ export default function QuestionPage() {
     }
   };
 
-  // Handle analyze button click
   const handleAnalyze = async () => {
     if (!transcript || !question) {
       setMessage("No transcript or question available for analysis.");
       return;
     }
 
-    // Create the prompt using the transcript and question
     const prompt = `
       Assume that you are an experienced Campus Recruiter with over 20 years of experience in hiring fresher candidates in Technical and Non-Technical Domains.
       You will be given a transcript or response of a candidate to a question asked.
@@ -90,9 +77,9 @@ export default function QuestionPage() {
     `;
 
     try {
-      const result = await model.generateContent(prompt); // Call the model with the prompt
-      const responseText = result.response.text(); // Assuming this returns the raw text
-      setAnalysis(responseText); // Store the analysis result
+      const result = await model.generateContent(prompt);
+      const responseText = result.response.text();
+      setAnalysis(responseText);
       setMessage("Analysis completed successfully!");
     } catch (error) {
       console.error("Error analyzing transcript:", error);
@@ -119,22 +106,19 @@ export default function QuestionPage() {
         <button type="submit">Submit</button>
       </form>
 
-      {message && <p>{message}</p>}
+      {message && <p className="message">{message}</p>}
 
-      {/* Show the "Analyze" button only if transcript is available */}
       {transcript && (
         <button onClick={handleAnalyze} className="analyze-button">
           Analyze Transcript
         </button>
       )}
 
-      {/* Show analysis result after analyzing */}
       {analysis && (
         <div className="analysis-result">
           <h2>Analysis Result:</h2>
-          {/* Split the analysis into sections based on headings */}
           {analysis
-            .split(/^#\s.+$/gm) // Split on headings (e.g., # Section)
+            .split(/^#\s.+$/gm)
             .filter((section) => section.trim() !== "")
             .map((section, index) => (
               <ReactMarkdown key={index}>{section}</ReactMarkdown>
@@ -148,87 +132,110 @@ export default function QuestionPage() {
           margin: 0 auto;
           padding: 40px;
           text-align: center;
+          color: #000;
         }
 
         h1 {
-          font-size: 2rem;
+          font-size: 2.5rem;
           margin-bottom: 20px;
+          color: #006400; /* Dark green */
+          font-weight: bold;
+          text-transform: capitalize;
         }
 
         p {
-          font-size: 1.2rem;
+          font-size: 1.1rem;
           margin-bottom: 20px;
+          color: #333;
         }
 
         form {
           display: flex;
           flex-direction: column;
           align-items: center;
+          background: #f9f9f9;
+          padding: 20px;
+          border-radius: 8px;
+          box-shadow: 0px 4px 10px rgba(0, 100, 0, 0.15); /* Subtle green shadow */
+          margin-bottom: 20px;
         }
 
         label {
           margin-bottom: 10px;
-          font-size: 1.1rem;
+          font-size: 1.2rem;
+          color: #006400;
         }
 
         input {
           width: 100%;
           padding: 10px;
           margin-bottom: 20px;
-          border: 1px solid #ccc;
+          border: 1px solid #006400;
           border-radius: 4px;
           font-size: 1rem;
+          color: #333;
         }
 
         button {
           padding: 10px 20px;
           font-size: 1rem;
-          background-color: #0070f3;
+          background-color: #006400;
           color: white;
           border: none;
           border-radius: 4px;
           cursor: pointer;
           margin-top: 10px;
+          box-shadow: 0px 2px 6px rgba(0, 100, 0, 0.2);
+          transition: background-color 0.3s ease, box-shadow 0.3s ease;
         }
 
         button:hover {
-          background-color: #005bb5;
+          background-color: #004d00;
+          box-shadow: 0px 4px 10px rgba(0, 77, 0, 0.3);
         }
 
         .analyze-button {
-          background-color: #28a745;
+          background-color: #228b22;
+          margin-top: 20px;
         }
 
         .analyze-button:hover {
-          background-color: #1e7e34;
+          background-color: #196619;
+        }
+
+        .message {
+          color: #228b22;
+          font-weight: bold;
+          margin-top: 15px;
+          font-size: 1rem;
         }
 
         .analysis-result {
           text-align: left;
           margin-top: 30px;
+          padding: 20px;
+          background: #f2fff2; /* Light green background */
+          border: 1px solid #006400;
+          border-radius: 8px;
         }
 
         .analysis-result h2 {
-          font-size: 1.5rem;
+          font-size: 1.8rem;
+          color: #006400;
           margin-bottom: 20px;
         }
 
-        .analysis-result p {
+        .analysis-result p,
+        .analysis-result li {
+          color: #333;
           margin-bottom: 10px;
+          line-height: 1.6;
         }
 
-        .analysis-result ul {
+        ul {
           list-style-type: disc;
           margin-left: 20px;
-        }
-
-        .analysis-result li {
-          margin-bottom: 5px;
-        }
-
-        p {
-          margin-top: 20px;
-          color: green;
+          color: #333;
         }
       `}</style>
     </div>
