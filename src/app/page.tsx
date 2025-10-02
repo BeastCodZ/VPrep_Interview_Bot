@@ -7,7 +7,33 @@ import AddQuesion from "../app/add_questions/page";
 export default function Home() {
   const [questions, setQuestions] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
   const router = useRouter();
+
+  // Load theme preference from localStorage on component mount
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("vprep-theme");
+    if (savedTheme === "dark") {
+      setDarkMode(true);
+      document.documentElement.classList.add("dark-theme");
+    } else {
+      setDarkMode(false);
+      document.documentElement.classList.remove("dark-theme");
+    }
+  }, []);
+
+  // Function to toggle theme and persist choice
+  const toggleDarkMode = () => {
+    if (darkMode) {
+      document.documentElement.classList.remove("dark-theme");
+      localStorage.setItem("vprep-theme", "light");
+      setDarkMode(false);
+    } else {
+      document.documentElement.classList.add("dark-theme");
+      localStorage.setItem("vprep-theme", "dark");
+      setDarkMode(true);
+    }
+  };
 
   const fetchQuestions = async (category: string) => {
     setLoading(true);
@@ -26,7 +52,6 @@ export default function Home() {
     router.push(`/question?text=${encodeURIComponent(question)}`);
   };
 
-  // Keyboard support for question list items
   const handleKeyDown = (event: React.KeyboardEvent<HTMLLIElement>, question: string) => {
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
@@ -36,6 +61,22 @@ export default function Home() {
 
   return (
     <div className="landing-page" role="main">
+      <header>
+        <h1 tabIndex={0}>AI-Based Interview Platform</h1>
+        <p tabIndex={0}>Choose between HR and Technical questions to prepare for your next interview.</p>
+        <button
+          onClick={toggleDarkMode}
+          aria-pressed={darkMode}
+          aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+          type="button"
+          className="theme-toggle-btn"
+        >
+          {darkMode ? "🌞 Light Mode" : "🌙 Dark Mode"}
+        </button>
+      </header>
+
+      {/* ...rest of your UI remains the same... */}
+
       <header>
         <h1 tabIndex={0}>AI-Based Interview Platform</h1>
         <p tabIndex={0}>Choose between HR and Technical questions to prepare for your next interview.</p>
