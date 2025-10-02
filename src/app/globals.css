@@ -5,20 +5,12 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  --primary-color: #0070f3;
-  --primary-color-hover: #005bb5;
-  --button-shadow: rgba(0, 112, 243, 0.3);
-  --focus-outline: #ffae00;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #121212;
+    --background: #facbcb;
     --foreground: #ededed;
-    --primary-color: #3399ff;
-    --primary-color-hover: #66b2ff;
-    --button-shadow: rgba(51, 153, 255, 0.5);
-    --focus-outline: #ffa500;
   }
 }
 
@@ -26,19 +18,10 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
-  margin: 0;
-  padding: 0;
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
-}
-
-/* Accessibility focus styles */
-:focus-visible {
-  outline: 3px solid var(--focus-outline);
-  outline-offset: 2px;
-  transition: outline-offset 0.15s ease-in-out;
 }
