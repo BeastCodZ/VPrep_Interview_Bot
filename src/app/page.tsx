@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import AddQuesion from "../app/add_questions/page";
 
 export default function Home() {
-  const [questions, setQuestions] = useState([]);
+  const [questions, setQuestions] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -26,42 +26,69 @@ export default function Home() {
     router.push(`/question?text=${encodeURIComponent(question)}`);
   };
 
+  // Keyboard support for question list items
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLLIElement>, question: string) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      handleQuestionClick(question);
+    }
+  };
+
   return (
-    <div className="landing-page">
+    <div className="landing-page" role="main">
       <header>
-        <h1>AI-Based Interview Platform</h1>
-        <p>Choose between HR and Technical questions to prepare for your next interview.</p>
+        <h1 tabIndex={0}>AI-Based Interview Platform</h1>
+        <p tabIndex={0}>Choose between HR and Technical questions to prepare for your next interview.</p>
       </header>
 
       <main>
-        <section className="category-selection">
+        <section className="category-selection" aria-label="Question Categories">
           <h2>Select a Question Category</h2>
-          <div className="button-group">
-            <button onClick={() => fetchQuestions("HR")}>HR Questions</button>
-            <button onClick={() => fetchQuestions("Technical")}>Technical Questions</button>
+          <div className="button-group" role="group" aria-label="Question category selection buttons">
+            <button
+              onClick={() => fetchQuestions("HR")}
+              aria-pressed="false"
+              aria-label="Load HR questions"
+              type="button"
+            >
+              HR Questions
+            </button>
+            <button
+              onClick={() => fetchQuestions("Technical")}
+              aria-pressed="false"
+              aria-label="Load Technical questions"
+              type="button"
+            >
+              Technical Questions
+            </button>
           </div>
         </section>
 
-        <section className="add-question">
+        <section className="add-question" aria-label="Add a new interview question">
           <h3>Add a New Question</h3>
           <AddQuesion />
         </section>
 
-        <section className="questions-display">
+        <section className="questions-display" aria-live="polite" aria-atomic="true">
           {loading ? (
             <p>Loading questions...</p>
-          ) : (
+          ) : questions.length > 0 ? (
             <ul>
-              {questions.length > 0 ? (
-                questions.map((question, index) => (
-                  <li key={index} onClick={() => handleQuestionClick(question)}>
-                    {question}
-                  </li>
-                ))
-              ) : (
-                <p>No questions available. Please choose a category.</p>
-              )}
+              {questions.map((question, index) => (
+                <li
+                  key={index}
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`Interview question: ${question}`}
+                  onClick={() => handleQuestionClick(question)}
+                  onKeyDown={(e) => handleKeyDown(e, question)}
+                >
+                  {question}
+                </li>
+              ))}
             </ul>
+          ) : (
+            <p>No questions available. Please choose a category.</p>
           )}
         </section>
       </main>
@@ -69,24 +96,30 @@ export default function Home() {
       <style jsx>{`
         .landing-page {
           text-align: center;
-          padding: 50px;
+          padding: 20px 15px;
           font-family: Arial, sans-serif;
-          color: #333;
+          color: var(--foreground);
+          max-width: 900px;
+          margin: 0 auto;
         }
         header h1 {
-          font-size: 2.5rem;
+          font-size: 2rem;
           font-weight: bold;
-          margin-bottom: 10px;
+          margin-bottom: 8px;
+          animation: fadeInDown 0.8s ease forwards;
         }
         header p {
-          font-size: 1.2rem;
+          font-size: 1.1rem;
           color: #555;
+          margin-bottom: 25px;
+          animation: fadeInDown 1s ease forwards;
         }
         .category-selection {
           margin-top: 20px;
         }
         .button-group {
           display: flex;
+          flex-wrap: wrap;
           gap: 15px;
           justify-content: center;
           margin-top: 20px;
@@ -94,34 +127,37 @@ export default function Home() {
         button {
           padding: 12px 24px;
           font-size: 16px;
-          font-weight: bold;
+          font-weight: 700;
           border: none;
           border-radius: 8px;
-          color: #fff;
-          background-color: #0070f3;
+          color: white;
+          background-color: var(--primary-color);
           cursor: pointer;
-          transition: background-color 0.3s ease;
-          box-shadow: 0px 4px 10px rgba(0, 112, 243, 0.3);
+          transition: background-color 0.3s ease, transform 0.2s ease;
+          box-shadow: 0px 4px 10px var(--button-shadow);
         }
-        button:hover {
-          background-color: #005bb5;
+        button:hover,
+        button:focus-visible {
+          background-color: var(--primary-color-hover);
+          transform: scale(1.05);
+          outline-offset: 4px;
+          outline: 3px solid var(--focus-outline);
         }
         .add-question {
-          margin-top: 40px;
+          margin: 40px auto 20px auto;
           padding: 20px;
-          width: 60%;  /* Decrease the width to reduce coverage */
+          max-width: 600px;
           background: #f4f4f4;
           border-radius: 8px;
-          box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-          text-align: center; /* Center align text inside */
-          margin-left: auto;
-          margin-right: auto;
+          box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+          text-align: center;
+          animation: fadeIn 1.2s ease forwards;
         }
         .add-question h3 {
           font-size: 1.5rem;
-          font-weight: bold;
-          color: #0070f3;
-          margin-bottom: 10px;
+          font-weight: 700;
+          color: var(--primary-color);
+          margin-bottom: 12px;
         }
         .add-question form {
           display: flex;
@@ -134,51 +170,135 @@ export default function Home() {
           font-size: 16px;
           border: 1px solid #ccc;
           border-radius: 4px;
+          transition: border-color 0.3s ease;
+        }
+        .add-question input:focus,
+        .add-question textarea:focus {
+          border-color: var(--primary-color);
+          outline: none;
+          box-shadow: 0 0 5px var(--primary-color);
+          transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
         .add-question textarea {
           resize: vertical;
+          min-height: 80px;
         }
         .add-question button {
           align-self: center;
           padding: 10px 20px;
           font-size: 16px;
-          background-color: #0070f3;
+          background-color: var(--primary-color);
           color: white;
           border: none;
           border-radius: 5px;
           cursor: pointer;
-          transition: background-color 0.3s ease;
+          transition: background-color 0.3s ease, transform 0.2s ease;
         }
-        .add-question button:hover {
-          background-color: #005bb5;
+        .add-question button:hover,
+        .add-question button:focus-visible {
+          background-color: var(--primary-color-hover);
+          transform: scale(1.05);
+          outline-offset: 4px;
+          outline: 3px solid var(--focus-outline);
         }
         .questions-display {
           margin-top: 40px;
+          min-height: 150px;
+          animation: fadeIn 1.4s ease forwards;
         }
         ul {
           list-style-type: none;
           padding: 0;
+          max-width: 800px;
+          margin: 0 auto;
         }
         li {
-          margin: 15px 0;
-          padding: 12px 18px;
+          margin: 12px auto;
+          padding: 14px 20px;
           font-size: 18px;
           cursor: pointer;
-          border: 1px solid #000;
+          border: 1.5px solid var(--foreground);
           border-radius: 6px;
-          transition: background-color 0.2s ease, box-shadow 0.2s ease;
+          transition: background-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
           text-align: left;
-          width: fit-content;
-          margin-left: auto;
-          margin-right: auto;
+          max-width: 90%;
+          overflow-wrap: break-word;
+          user-select: none;
         }
-        li:hover {
+        li:hover,
+        li:focus-visible {
           background-color: #f9f9f9;
-          box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
-          color: #0070f3;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+          color: var(--primary-color);
+          outline-offset: 4px;
+          outline: 3px solid var(--focus-outline);
         }
         p {
-          color: #333;
+          color: var(--foreground);
+          font-size: 1.1rem;
+        }
+        /* Animations */
+        @keyframes fadeInDown {
+          0% {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+
+        /* Responsive styles */
+        @media only screen and (max-width: 768px) {
+          .landing-page {
+            padding: 15px 10px;
+          }
+          header h1 {
+            font-size: 1.8rem;
+          }
+          header p {
+            font-size: 1.0rem;
+            margin-bottom: 20px;
+          }
+          .button-group {
+            flex-direction: column;
+          }
+          button {
+            width: 100%;
+            max-width: 280px;
+            margin: 0 auto;
+          }
+          .add-question {
+            width: 90%;
+            padding: 15px;
+          }
+          li {
+            font-size: 16px;
+            max-width: 100%;
+            padding: 12px 15px;
+          }
+        }
+
+        @media only screen and (max-width: 400px) {
+          header h1 {
+            font-size: 1.5rem;
+          }
+          .add-question h3 {
+            font-size: 1.3rem;
+          }
+          button {
+            font-size: 14px;
+            padding: 10px 18px;
+          }
+          li {
+            font-size: 15px;
+            padding: 10px 12px;
+          }
         }
       `}</style>
     </div>
