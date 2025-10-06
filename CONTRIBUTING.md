@@ -29,6 +29,9 @@ For example, a typical bug report should:
 - What is your environment (OS and Browser version).
 - Add logs or other helpful details.
 
+## Code of Conduct
+By contributing to our project, you are agreeing to the GitHub Community [Terms of Service](https://docs.github.com/en/site-policy/github-terms/github-terms-of-service) and [GitHub Acceptable Use Policies](https://docs.github.com/en/site-policy/acceptable-use-policies/github-acceptable-use-policies).
+
 ## License
 When you submit code changes, your submissions are under the same [MIT License](http://choosealicense.com/licenses/mit/) that covers our project.
 
