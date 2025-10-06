@@ -1,5 +1,5 @@
 # Contributing to VPrep_Interview_Bot
-We invite everyone to join us in developing our interview agent (powered by Assembly AI and Gemini).  This project helps users improve their interview speaking skills.
+We invite everyone to join us in developing our interview agent which is powered by Assembly AI and Gemini).  This project helps users improve their interview speaking skills.
 
 We want to make contributing to this project as easy as possible.  You can
 
@@ -7,7 +7,7 @@ We want to make contributing to this project as easy as possible.  You can
 - Report a bug
 - Submit a fix
 
-## We use the typical Github workflow with all proposed changes via pull requests.  Here are the steps:
+## We use the typical GitHub workflow with all proposed changes via pull requests.  Here are the steps:
 
 1. Click the Fork button at [our repo](https://github.com/mainak0907/VPrep_Interview_Bot), clone to your computer, and then create and checkout your branch from `main`.
 2. If coding some feature, create code and make sure your code passes your tests.
@@ -15,7 +15,7 @@ We want to make contributing to this project as easy as possible.  You can
     * Update the documentation with any dependency changes.
 3. Create a [pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request).
 
-## Contribute by creating a Github issue
+## Contribute by creating a GitHub issue
 We use GitHub issues to track changes. Just click the [New Issue button](https://github.com/mainak0907/VPrep_Interview_Bot/issues) and state your issue.
 
 For example, a typical bug report should:
