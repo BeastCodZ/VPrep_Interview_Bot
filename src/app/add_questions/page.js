@@ -46,7 +46,7 @@ export default function AddQuestion() {
 
   return (
     <div className="form-container">
-      <h1>Add a New Question</h1>
+      <h1 style={{ color: "black" }}>Add a New Question</h1>
 
       <form onSubmit={handleSubmit}>
         <label htmlFor="category">Category</label>
