@@ -80,15 +80,15 @@ export default function Home() {
   const handleQuestionClick = (question: string) => {
     router.push(`/question?text=${encodeURIComponent(question)}`);
   };
-
+  //
   return (
     <div className="landing-page" role="main">
       <header>
         <h1 tabIndex={0}>AI-Based Interview Platform</h1>
-        <p tabIndex={0}>
+        <h6 tabIndex={0} className="text-base mb-3">
           Choose between HR and Technical questions to prepare for your next
           interview.
-        </p>
+        </h6>
         <button
           onClick={toggleDarkMode}
           aria-pressed={darkMode}
@@ -146,7 +146,9 @@ export default function Home() {
           {loading ? (
             <p>Loading questions...</p>
           ) : error ? (
-            <p role="alert" className="error-message">{error}</p>
+            <p role="alert" className="error-message">
+              {error}
+            </p>
           ) : questions.length > 0 ? (
             <ul>
               {questions.map((question, index) => (
@@ -157,10 +159,7 @@ export default function Home() {
                   aria-label={`Interview question: ${question}`}
                   onClick={() => handleQuestionClick(question)}
                   onKeyDown={(event) => {
-                    if (
-                      event.key === "Enter" ||
-                      event.key === " "
-                    ) {
+                    if (event.key === "Enter" || event.key === " ") {
                       event.preventDefault();
                       handleQuestionClick(question);
                     }
