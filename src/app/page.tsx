@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import AddQuesion from "../app/add_questions/page";
-import './App.css';
+import './app.css';
 export default function Home() {
   const [questions, setQuestions] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
